@@ -358,7 +358,7 @@ export default function Home() {
                       </svg>
                     </div>
                     <p className="text-xl text-gray-300 mb-4">Demo Video</p>
-                    <p className="text-gray-400 max-w-lg mx-auto">
+                     <p className="text-gray-400 max-w-lg mx-auto">
                       Click to watch how CalorieSense analyzes your food and provides detailed nutrition information in seconds.
                     </p>
                   </div>

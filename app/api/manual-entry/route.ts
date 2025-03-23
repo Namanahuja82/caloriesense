@@ -23,36 +23,43 @@ export async function POST(req: Request) {
     ).join('\n');
 
     // Build the prompt
-    const prompt = `You are CalorieSense AI, an expert nutritionist with encyclopedic knowledge of global cuisine and their nutritional content.
+      const prompt = `You are CalorieSense AI, an expert nutritionist with encyclopedic knowledge of global cuisine and their nutritional content.
 
-TASK: Analyze the following manually entered food items and provide a detailed caloric breakdown.
+  TASK: Analyze the following manually entered food items and provide a detailed caloric breakdown.
 
-FOOD ITEMS:
-${formattedItems}
+  FOOD ITEMS:
+  ${formattedItems}
 
-INSTRUCTIONS:
-1. Analyze each food/beverage item provided
-2. For each item, provide:
-   - Estimated calories (based on standard portions)
-   - Brief nutritional insight
-3. Format your response in this precise table structure:
+  INSTRUCTIONS:
+  1. Analyze each food/beverage item provided
+  2. For each item, provide:
+    - Estimated calories (based on standard portions)
+    - Brief nutritional insight
+  3. Format your response in this precise structure:
 
-| # | Item | Qty | Cal/Unit | Total Cal | Macro Highlights |
-|---|------|-----|----------|-----------|------------------|
-| 1 | [Item Name] | [Quantity] | [Cal per unit] | [Total Cal] | [Brief macro info] |
+ ITEM ANALYSIS]
+🍽️ [Item Name] × [Quantity] = [Total Calories]
+   • [Brief nutrition note highlighting protein/fat/carb content]
+   • [Potential dietary flags: high sodium, added sugars, etc.]
 
-4. After the table, include:
-   - Total meal calories
-   - A single key nutrition insight about the overall meal
-   - One practical suggestion to improve the nutritional profile
+[MEAL SUMMARY]
+📊 Total Calories: [XXX]
+⚖️ Macronutrient Ratio: [Protein/Fat/Carb percentages]
+💡 Nutrition Insight: [Personalized tip based on meal composition]
+🔄 Healthier Alternatives: [1-2 specific substitution suggestions]
 
-ANALYSIS GUIDELINES:
-- Use standard portion sizes when specific measurements aren't provided
-- Consider typical preparation methods for common dishes
-- For ambiguous items, note your assumptions clearly
-- For beverages, differentiate between regular and diet/zero options when mentioned
+  4. After this , include:
+    - Total meal calories
+    - A single key nutrition insight about the overall meal
+    - One practical suggestion to improve the nutritional profile
 
-If the item description is incomplete, make reasonable estimations based on standard serving sizes, noting your assumptions.`;
+  ANALYSIS GUIDELINES:
+  - Use standard portion sizes when specific measurements aren't provided
+  - Consider typical preparation methods for common dishes
+  - For ambiguous items, note your assumptions clearly
+  - For beverages, differentiate between regular and diet/zero options when mentioned
+
+  If the item description is incomplete, make reasonable estimations based on standard serving sizes, noting your assumptions.`;
 
     // Generate AI response
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });

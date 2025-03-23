@@ -44,13 +44,22 @@ export async function POST(req: Request) {
     2. For each item, provide:
        - Estimated calories (based on standard restaurant portions)
        - Brief nutritional insight (optional for main items)
-    3. Format your response in this precise table structure:
+    3. Format your response in this precise line  by line structure:
+
+    like the following format
+    [ITEM ANALYSIS]
+🍽️ [Item Name] × [Quantity] = [Total Calories]
+   • [Brief nutrition note highlighting protein/fat/carb content]
+   • [Potential dietary flags: high sodium, added sugars, etc.]
+
+[MEAL SUMMARY]
+📊 Total Calories: [XXX]
+⚖️ Macronutrient Ratio: [Protein/Fat/Carb percentages]
+💡 Nutrition Insight: [Personalized tip based on meal composition]
+🔄 Healthier Alternatives: [1-2 specific substitution suggestions]
+
     
-    | # | Item | Qty | Cal/Unit | Total Cal | Macro Highlights |
-    |---|------|-----|----------|-----------|------------------|
-    | 1 | [Item Name] | [Quantity] | [Cal per unit] | [Total Cal] | [Brief macro info] |
-    
-    4. After the table, include:
+    4. More Include
        - Total meal calories
        - A single key nutrition insight about the overall meal
     
