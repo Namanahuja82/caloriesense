@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +15,10 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -45,30 +50,49 @@ export default function Home() {
           </div>
           
           <div className="md:hidden">
-            <button className="p-2 rounded-lg bg-gray-800">
+            <button className="p-2 rounded-lg bg-gray-800" onClick={toggleMobileMenu} aria-label="Toggle mobile menu">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
             </button>
           </div>
         </div>
+        
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-gray-900 shadow-xl border-t border-gray-800">
+            <div className="container mx-auto px-6 py-4 space-y-4">
+              <a href="#features" className="block py-2 hover:text-blue-400 transition-colors">Features</a>
+              <a href="#testimonials" className="block py-2 hover:text-blue-400 transition-colors">Testimonials</a>
+              <a href="#pricing" className="block py-2 hover:text-blue-400 transition-colors">Pricing</a>
+              <div className="flex flex-col space-y-3 pt-3 border-t border-gray-800">
+                <Link href="/login" className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors text-center">
+                  Sign In
+                </Link>
+                <Link href="/signup" className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-colors text-center">
+                  Get Started
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <div className="relative min-h-screen flex items-center">
+      <div className="relative min-h-screen flex items-center pt-20">
         <div className="absolute inset-0 bg-cover bg-center opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 to-gray-900"></div>
         
-        <div className="container mx-auto px-6 relative z-10">
+        <div className="container mx-auto px-6 relative z-10 pt-16">
           <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="md:w-1/2 mb-10 md:mb-0">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            <div className="md:w-1/2 mb-10 md:mb-0 text-center md:text-left">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 mt-8">
                 Track Calories <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Intelligently</span>
               </h1>
               <p className="text-xl text-gray-300 mb-8">
                 Snap a photo of your meal, and let AI analyze its nutritional content. Make informed decisions about your diet with CalorieSense.
               </p>
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
                 <Link href="/signup" className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-center font-medium">
                   Start Free Trial
                 </Link>
@@ -78,7 +102,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="md:w-1/2 relative">
+            <div className="md:w-1/2 relative mt-10 md:mt-0">
               <div className="relative w-full max-w-md mx-auto">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl blur-xl opacity-50 transform -rotate-6"></div>
                 <div className="relative bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
