@@ -1,19 +1,62 @@
 'use client'
 
 import { createClient } from '@/utils/supabase/client'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function SignupPage() {
   const supabase = createClient();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Check if user is already logged in on page load
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.push('/dashboard');
+      }
+    };
+    
+    checkSession();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Fix: Use only the validated event types from the Supabase client
+        if (session && (event === 'SIGNED_IN')) {
+          router.push('/dashboard');
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router, supabase]);
 
   const handleOAuthSignup = async (provider: 'google' | 'github') => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`, // Redirect after signup
-      },
-    });
-    if (error) {
-      console.error('OAuth signup error:', error);
+    try {
+      setLoading(true);
+      setAuthError(null);
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setAuthError(`${provider} signup failed: ${error.message}`);
+        console.error('OAuth signup error:', error);
+      }
+    } catch (err) {
+      console.error('Unexpected error during OAuth signup:', err);
+      setAuthError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,48 +72,13 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {authError && (
+          <div className="bg-red-900/50 border border-red-800 text-red-200 px-4 py-3 rounded-lg">
+            <p>{authError}</p>
+          </div>
+        )}
+
         <div className="mt-8">
-          {/* Email form commented out
-          <form className="space-y-6" action={signup}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 px-3 py-2 text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 px-3 py-2 text-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                Sign up
-              </button>
-            </div>
-          </form>
-          */}
-
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-600" />
@@ -83,7 +91,8 @@ export default function SignupPage() {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               onClick={() => handleOAuthSignup('github')}
-              className="inline-flex w-full justify-center rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 shadow-sm transition-colors hover:bg-gray-600"
+              disabled={loading}
+              className="inline-flex w-full justify-center rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 shadow-sm transition-colors hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="sr-only">Sign up with GitHub</span>
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -93,12 +102,13 @@ export default function SignupPage() {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="ml-2">GitHub</span>
+              <span className="ml-2">{loading ? 'Loading...' : 'GitHub'}</span>
             </button>
 
             <button
               onClick={() => handleOAuthSignup('google')}
-              className="inline-flex w-full justify-center rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 shadow-sm transition-colors hover:bg-gray-600"
+              disabled={loading}
+              className="inline-flex w-full justify-center rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 shadow-sm transition-colors hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="sr-only">Sign up with Google</span>
               <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -107,7 +117,7 @@ export default function SignupPage() {
                   d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
                 />
               </svg>
-              <span className="ml-2">Google</span>
+              <span className="ml-2">{loading ? 'Loading...' : 'Google'}</span>
             </button>
           </div>
         </div>
