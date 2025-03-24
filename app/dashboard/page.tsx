@@ -24,7 +24,7 @@ export default function Dashboard() {
   const [chatLoading, setChatLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
-  
+
   // New state for manual entry
   const [activeTab, setActiveTab] = useState<'upload' | 'manual'>('upload');
   const [manualEntryItems, setManualEntryItems] = useState<FoodItem[]>([
@@ -42,7 +42,7 @@ export default function Dashboard() {
   }, [chatHistory]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
+    if (event.target.files && event.target.files[0]) {
       console.log("File selected:", event.target.files[0]);
       setFile(event.target.files[0]);
     }
@@ -53,32 +53,32 @@ export default function Dashboard() {
       alert("Please select a file first!");
       return;
     }
-  
+
     setLoading(true);
-  
+
     // Fetch authenticated user ID from Supabase
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser();
-  
+
     if (error || !user) {
       console.error("User not authenticated", error);
       alert("You need to be logged in!");
       setLoading(false);
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("billImage", file);
     formData.append("userId", user.id);
-  
+
     try {
       const response = await fetch("/api/calorie", {
         method: "POST",
         body: formData,
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         setCalorieData(data.calories);
@@ -133,7 +133,7 @@ export default function Dashboard() {
         data: { user },
         error,
       } = await supabase.auth.getUser();
-      
+
       if (error || !user) {
         console.error("User not authenticated", error);
         alert("You need to be logged in!");
@@ -171,26 +171,26 @@ export default function Dashboard() {
 
   const sendChatMessage = async () => {
     if (!chatMessage.trim()) return;
-    
+
     setChatLoading(true);
-    
+
     // Add user message to chat history
-    setChatHistory([...chatHistory, {type: 'user', message: chatMessage}]);
-    
+    setChatHistory([...chatHistory, { type: 'user', message: chatMessage }]);
+
     try {
       // Fetch authenticated user ID from Supabase
       const {
         data: { user },
         error,
       } = await supabase.auth.getUser();
-      
+
       if (error || !user) {
         console.error("User not authenticated", error);
         alert("You need to be logged in to chat!");
         setChatLoading(false);
         return;
       }
-      
+
       // Send message to API
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -202,19 +202,19 @@ export default function Dashboard() {
           userId: user.id
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         // Add AI response to chat history
-        setChatHistory(prev => [...prev, {type: 'ai', message: data.response}]);
+        setChatHistory(prev => [...prev, { type: 'ai', message: data.response }]);
       } else {
         alert("Error sending message: " + data.error);
-        setChatHistory(prev => [...prev, {type: 'ai', message: "Sorry, I couldn't process your message."}]);
+        setChatHistory(prev => [...prev, { type: 'ai', message: "Sorry, I couldn't process your message." }]);
       }
     } catch (error) {
       console.error("Chat error:", error);
-      setChatHistory(prev => [...prev, {type: 'ai', message: "Sorry, something went wrong."}]);
+      setChatHistory(prev => [...prev, { type: 'ai', message: "Sorry, something went wrong." }]);
     } finally {
       setChatLoading(false);
       setChatMessage(""); // Clear input field
@@ -253,7 +253,7 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <button 
+            <button
               onClick={toggleChat}
               className="flex items-center space-x-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-lg transition-colors duration-200"
               aria-label="Toggle nutrition chat"
@@ -263,7 +263,7 @@ export default function Dashboard() {
               </svg>
               <span className="hidden xs:inline">{chatOpen ? "Close Chat" : "Nutrition Chat"}</span>
             </button>
-            <button 
+            <button
               onClick={handleLogout}
               className="flex items-center space-x-1 bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-lg transition-colors duration-200"
               aria-label="Logout"
@@ -277,45 +277,43 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="flex-1 pt-25 p-2 sm:p-5">
+      {/* Main Content - Fix for spacing */}
+      <div className="flex-1 pt-16 p-2 sm:p-5">
         <div className={`flex flex-col md:flex-row w-full ${chatOpen && 'h-[calc(100vh-5rem)]'}`}>
           {/* Upload/Analysis Section */}
           <div className={`${chatOpen ? 'md:w-1/2 hidden md:block' : 'w-full'} mb-4 md:mb-0 transition-all duration-300 md:pr-2`}>
             <div className="w-full max-w-md mx-auto bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-4 sm:p-8 space-y-4 sm:space-y-6">
               <h1 className="text-2xl sm:text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Calorie Analysis</h1>
-              
+
               {/* Tab navigation */}
               <div className="flex border-b border-gray-700">
                 <button
-                  className={`flex-1 py-2 font-medium text-xs sm:text-sm ${
-                    activeTab === 'upload' 
-                      ? 'text-blue-400 border-b-2 border-blue-500' 
+                  className={`flex-1 py-2 font-medium text-xs sm:text-sm ${activeTab === 'upload'
+                      ? 'text-blue-400 border-b-2 border-blue-500'
                       : 'text-gray-400 hover:text-gray-300'
-                  }`}
+                    }`}
                   onClick={() => setActiveTab('upload')}
                 >
                   Upload Bill
                 </button>
                 <button
-                  className={`flex-1 py-2 font-medium text-xs sm:text-sm ${
-                    activeTab === 'manual' 
-                      ? 'text-blue-400 border-b-2 border-blue-500' 
+                  className={`flex-1 py-2 font-medium text-xs sm:text-sm ${activeTab === 'manual'
+                      ? 'text-blue-400 border-b-2 border-blue-500'
                       : 'text-gray-400 hover:text-gray-300'
-                  }`}
+                    }`}
                   onClick={() => setActiveTab('manual')}
                 >
                   Manual Entry
                 </button>
               </div>
-              
+
               {/* Upload bill tab content */}
               {activeTab === 'upload' && (
                 <div className="space-y-4">
                   <p className="text-center text-sm text-gray-300">Upload your restaurant bill to analyze calorie content</p>
-                  
+
                   <div className="flex flex-col items-center justify-center w-full">
-                    <label 
+                    <label
                       className="flex flex-col items-center justify-center w-full h-24 sm:h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800 transition-colors duration-200"
                     >
                       <div className="flex flex-col items-center justify-center pt-3 pb-3 sm:pt-5 sm:pb-6">
@@ -327,22 +325,22 @@ export default function Dashboard() {
                         </p>
                         <p className="text-xs text-gray-400">PNG, JPG or JPEG (MAX. 10MB)</p>
                       </div>
-                      <input 
-                        id="dropzone-file" 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
+                      <input
+                        id="dropzone-file"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
                         onChange={handleFileChange}
                       />
                     </label>
-                    
+
                     {file && (
                       <div className="mt-3 text-xs sm:text-sm text-gray-300 text-center">
                         Selected: {file.name}
                       </div>
                     )}
                   </div>
-                  
+
                   <button
                     onClick={handleUpload}
                     disabled={!file || loading}
@@ -362,12 +360,12 @@ export default function Dashboard() {
                   </button>
                 </div>
               )}
-              
+
               {/* Manual entry tab content */}
               {activeTab === 'manual' && (
                 <div className="space-y-4">
                   <p className="text-center text-sm text-gray-300">Enter your food items to calculate calories</p>
-                  
+
                   <div className="space-y-3">
                     {manualEntryItems.map((item, index) => (
                       <div key={index} className="flex space-x-2 items-center">
@@ -402,7 +400,7 @@ export default function Dashboard() {
                         </button>
                       </div>
                     ))}
-                    
+
                     <button
                       onClick={addFoodItem}
                       className="w-full py-2 px-3 sm:px-4 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-md transition-colors duration-200 flex items-center justify-center"
@@ -413,7 +411,7 @@ export default function Dashboard() {
                       Add Food Item
                     </button>
                   </div>
-                  
+
                   <button
                     onClick={handleManualSubmit}
                     disabled={manualEntryLoading || manualEntryItems.every(item => item.name.trim() === '')}
@@ -473,14 +471,14 @@ export default function Dashboard() {
             </div>
           )}
 
-{chatOpen && (
-  <div className={`${chatOpen ? 'block' : 'hidden'} md:block w-full md:w-1/2 md:pl-2 flex-1 flex flex-col`}>
-    <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden h-[calc(100vh-10rem)] md:h-full md:max-h-[calc(100vh-8rem)]">
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 sm:p-4">
-        <h2 className="text-lg sm:text-xl font-bold">Nutrition Chat Assistant</h2>
-      </div>
-                
-                <div 
+          {chatOpen && (
+            <div className={`${chatOpen ? 'block' : 'hidden'} md:block w-full md:w-1/2 md:pl-2 flex-1 flex flex-col`}>
+              <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden h-[calc(100vh-10rem)] md:h-full md:max-h-[calc(100vh-8rem)]">
+                <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 sm:p-4">
+                  <h2 className="text-lg sm:text-xl font-bold">Nutrition Chat Assistant</h2>
+                </div>
+
+                <div
                   ref={chatContainerRef}
                   className="flex-1 p-3 sm:p-4 overflow-y-auto bg-gray-900"
                 >
@@ -495,16 +493,15 @@ export default function Dashboard() {
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
                       {chatHistory.map((chat, index) => (
-                        <div 
-                          key={index} 
+                        <div
+                          key={index}
                           className={`flex ${chat.type === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
-                          <div 
-                            className={`max-w-[75%] sm:max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-sm ${
-                              chat.type === 'user' 
-                                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none' 
+                          <div
+                            className={`max-w-[75%] sm:max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-sm ${chat.type === 'user'
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none'
                                 : 'bg-gray-800 text-gray-200 rounded-bl-none'
-                            }`}
+                              }`}
                           >
                             <p className="whitespace-pre-wrap">{chat.message}</p>
                           </div>
@@ -524,9 +521,9 @@ export default function Dashboard() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="border-t border-gray-700 p-3 sm:p-4 bg-gray-800">
-                  <form 
+                  <form
                     onSubmit={(e) => {
                       e.preventDefault();
                       sendChatMessage();
@@ -556,6 +553,7 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+          
         </div>
       </div>
     </div>
