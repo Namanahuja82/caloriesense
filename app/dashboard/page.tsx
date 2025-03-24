@@ -282,7 +282,7 @@ export default function Dashboard() {
         <div className={`flex flex-col md:flex-row w-full ${chatOpen && 'h-[calc(100vh-5rem)]'}`}>
           {/* Upload/Analysis Section */}
           <div className={`${chatOpen ? 'md:w-1/2 hidden md:block' : 'w-full'} mb-4 md:mb-0 transition-all duration-300 md:pr-2`}>
-          <div className="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-4 sm:p-8 space-y-4 sm:space-y-6">
+          <div className="w-full max-w-md mx-auto mt-8 bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-4 sm:p-8 space-y-4 sm:space-y-6">
               <h1 className="text-2xl sm:text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Calorie Analysis</h1>
 
               {/* Tab navigation */}
