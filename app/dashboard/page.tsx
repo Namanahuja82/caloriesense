@@ -473,12 +473,12 @@ export default function Dashboard() {
             </div>
           )}
 
-          {chatOpen && (
-            <div className={`${chatOpen ? 'block' : 'hidden'} md:block w-full md:w-1/2 md:pl-2 flex-1 flex flex-col`}>
-              <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden h-[calc(100vh-10rem)] md:h-auto">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 sm:p-4">
-                  <h2 className="text-lg sm:text-xl font-bold">Nutrition Chat Assistant</h2>
-                </div>
+{chatOpen && (
+  <div className={`${chatOpen ? 'block' : 'hidden'} md:block w-full md:w-1/2 md:pl-2 flex-1 flex flex-col`}>
+    <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden h-[calc(100vh-10rem)] md:h-full md:max-h-[calc(100vh-8rem)]">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 sm:p-4">
+        <h2 className="text-lg sm:text-xl font-bold">Nutrition Chat Assistant</h2>
+      </div>
                 
                 <div 
                   ref={chatContainerRef}
