@@ -278,7 +278,7 @@ export default function Dashboard() {
       </nav>
 
       {/* Main Content - Fix for spacing */}
-      <div className="flex-1 pt-16 p-2 sm:p-5">
+      <div className="flex-1 pt-24 p-2 sm:p-5">
         <div className={`flex flex-col md:flex-row w-full ${chatOpen && 'h-[calc(100vh-5rem)]'}`}>
           {/* Upload/Analysis Section */}
           <div className={`${chatOpen ? 'md:w-1/2 hidden md:block' : 'w-full'} mb-4 md:mb-0 transition-all duration-300 md:pr-2`}>
