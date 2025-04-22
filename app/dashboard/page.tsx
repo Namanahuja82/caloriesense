@@ -56,24 +56,24 @@ export default function Dashboard() {
 
     setLoading(true);
 
-    // Fetch authenticated user ID from Supabase
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      console.error("User not authenticated", error);
-      alert("You need to be logged in!");
-      setLoading(false);
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("billImage", file);
-    formData.append("userId", user.id);
-
     try {
+      // Fetch authenticated user ID from Supabase
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        console.error("User not authenticated", error);
+        alert("You need to be logged in!");
+        setLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("billImage", file);
+      formData.append("userId", user.id);
+
       const response = await fetch("/api/calorie", {
         method: "POST",
         body: formData,
@@ -83,7 +83,7 @@ export default function Dashboard() {
       if (response.ok) {
         setCalorieData(data.calories);
       } else {
-        alert("Error processing bill: " + data.error);
+        alert("Error processing bill: " + (data.error || "Unknown error"));
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -116,7 +116,6 @@ export default function Dashboard() {
 
   // Submit manual entry form
   const handleManualSubmit = async () => {
-    // Validate that at least one item has a name
     if (!manualEntryItems.some(item => item.name.trim() !== '')) {
       alert("Please enter at least one food item");
       return;
@@ -124,11 +123,9 @@ export default function Dashboard() {
 
     setManualEntryLoading(true);
 
-    // Filter out empty items
     const validItems = manualEntryItems.filter(item => item.name.trim() !== '');
 
     try {
-      // Fetch authenticated user ID from Supabase
       const {
         data: { user },
         error,
@@ -141,7 +138,6 @@ export default function Dashboard() {
         return;
       }
 
-      // Send to API
       const response = await fetch("/api/manual-entry", {
         method: "POST",
         headers: {
@@ -156,10 +152,9 @@ export default function Dashboard() {
       const data = await response.json();
       if (response.ok) {
         setCalorieData(data.calories);
-        // Reset form with one empty row after successful submission
         setManualEntryItems([{ name: '', quantity: '' }]);
       } else {
-        alert("Error processing food items: " + data.error);
+        alert("Error processing food items: " + (data.error || "Unknown error"));
       }
     } catch (error) {
       console.error("Manual entry error:", error);
@@ -174,11 +169,9 @@ export default function Dashboard() {
 
     setChatLoading(true);
 
-    // Add user message to chat history
     setChatHistory([...chatHistory, { type: 'user', message: chatMessage }]);
 
     try {
-      // Fetch authenticated user ID from Supabase
       const {
         data: { user },
         error,
@@ -191,7 +184,6 @@ export default function Dashboard() {
         return;
       }
 
-      // Send message to API
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -206,10 +198,9 @@ export default function Dashboard() {
       const data = await response.json();
 
       if (response.ok) {
-        // Add AI response to chat history
         setChatHistory(prev => [...prev, { type: 'ai', message: data.response }]);
       } else {
-        alert("Error sending message: " + data.error);
+        alert("Error sending message: " + (data.error || "Unknown error"));
         setChatHistory(prev => [...prev, { type: 'ai', message: "Sorry, I couldn't process your message." }]);
       }
     } catch (error) {
@@ -217,7 +208,7 @@ export default function Dashboard() {
       setChatHistory(prev => [...prev, { type: 'ai', message: "Sorry, something went wrong." }]);
     } finally {
       setChatLoading(false);
-      setChatMessage(""); // Clear input field
+      setChatMessage("");
     }
   };
 
@@ -231,7 +222,6 @@ export default function Dashboard() {
     }
   };
 
-  // Toggle chat on mobile view
   const toggleChat = () => {
     setChatOpen(!chatOpen);
   };
