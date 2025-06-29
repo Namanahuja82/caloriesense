@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Use PrismaClient as a singleton to prevent connection issues
 let prisma: PrismaClient;
@@ -16,8 +15,6 @@ if (process.env.NODE_ENV === 'production') {
   // @ts-ignore
   prisma = global.prisma;
 }
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 export async function POST(req: Request) {
   try {
@@ -74,10 +71,37 @@ ANALYSIS GUIDELINES:
 - For beverages, differentiate between regular and diet/zero options when mentioned
 If the item description is incomplete, make reasonable estimations based on standard serving sizes, noting your assumptions.`;
 
-    // Generate AI response
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const generatedContent = await model.generateContent(prompt);
-    const result = generatedContent.response?.text() || "I couldn't generate a response. Please try again.";
+    // Generate AI response using direct HTTP request to Gemini 2.5 Flash
+    const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+      method: 'POST',
+      headers: {
+        'x-goog-api-key': process.env.GEMINI_API_KEY as string,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ]
+      })
+    });
+
+    if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text();
+      console.error(`Gemini API error: ${geminiResponse.status} - ${errorText}`);
+      throw new Error(`Gemini API request failed: ${geminiResponse.status}`);
+    }
+
+    const geminiData = await geminiResponse.json();
+    
+    // Extract the generated text from the response
+    const result = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || 
+                   "I couldn't generate a response. Please try again.";
     
     try {
       // Save to history
